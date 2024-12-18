@@ -1,0 +1,56 @@
+app/
+├── users/                     # Users-related routes
+│   ├── login/                 # Login route
+│   │   ├── page.tsx           # Login page
+│   │   ├── LoginForm.tsx      # Login form component
+│   │   ├── styles.module.css  # Optional module CSS for login page
+│   │
+│   ├── signup/                # Signup route
+│   │   ├── page.tsx           # Signup page
+│   │   ├── SignupForm.tsx     # Signup form component
+│   │
+│   ├── profile/               # Profile routes
+│   │   ├── page.tsx           # View profile page
+│   │   ├── edit/              # Edit profile route
+│   │       ├── page.tsx       # Edit profile page
+│   │       ├── EditProfileForm.tsx # Edit form component
+│
+├── feed/                      # Feed-related routes
+│   ├── page.tsx               # Feed (Home) page
+│   ├── Post.tsx               # Component for individual posts
+│   ├── CreatePost.tsx         # Component for creating a new post
+│   ├── styles.module.css      # Optional CSS for feed-specific styling
+│
+├── notifications/             # Notifications route
+│   ├── page.tsx               # Notifications page
+│   ├── NotificationItem.tsx   # Component for each notification
+│
+├── layout.tsx                 # Global layout for the app
+├── globals.css                # TailwindCSS global styles
+│
+components/                    # Shared components across routes
+├── Navbar.tsx                 # App-wide navigation bar
+├── Footer.tsx                 # App-wide footer
+├── LikeButton.tsx             # Like button (used in feed/posts)
+├── CommentSection.tsx         # Comment section for posts
+│
+contexts/                      # Context API for state management
+├── UserContext.tsx            # Authentication and user context
+├── FeedContext.tsx            # Context for feed data
+│
+hooks/                         # Custom hooks
+├── useAuth.ts                 # Authentication hook
+├── useFetch.ts                # Fetch data hook
+│
+lib/                           # Helper functions and utilities
+├── api.ts                     # API helper functions
+├── constants.ts               # Constants (e.g., API URLs)
+├── types.ts                   # TypeScript types and interfaces
+│
+public/                        # Public assets
+├── images/                    # Static images
+├── icons/                     # Static icons
+│
+tailwind.config.js             # TailwindCSS configuration
+tsconfig.json                  # TypeScript configuration
+next.config.js                 # Next.js configuration
