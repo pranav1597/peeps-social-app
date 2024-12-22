@@ -30,7 +30,7 @@ function parseFormData(req: Request) {
 async function uploadToCloudinary(file: any): Promise<string> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: "social-app/posts", resource_type: "auto" },
+      { folder: "public/posts", resource_type: "auto" },
       (error, result) => {
         if (error) return reject(error);
         resolve(result.secure_url); // Secure URL of uploaded file
