@@ -1,56 +1,81 @@
-"use client"
+// createPost/page.tsx
+"use client";
+import { useState } from "react";
 
-import React, { useState } from "react";
+const CreatePost = () => {
+  const [description, setDescription] = useState<string>("");
+  const [mediaFiles, setMediaFiles] = useState<FileList | null>(null);
+  const [loading, setLoading] = useState(false);
 
-export default function CreatePostPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [postDescription, setPostDescription] = useState("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setFile(files[0]); // Select the first file for the post
-    }
-  };
-
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setPostDescription(event.target.value); // Handle text input
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!file || !postDescription) {
-      alert("Please fill in all fields");
+    if (!mediaFiles || mediaFiles.length === 0) {
+      alert("Please select media.");
       return;
     }
 
+    setLoading(true);
+
+    // FormData to handle file and text submission
     const formData = new FormData();
-    formData.append("profilePicture", file); // If profile picture is used
-    formData.append("posts", file); // Upload post image as file
-    formData.append("description", postDescription); // Add description field
+    formData.append("description", description);
+    for (let i = 0; i < mediaFiles.length; i++) {
+      formData.append("media", mediaFiles[i]);
+    }
 
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const result = await response.json();
-    console.log(result);
+      const data = await res.json();
+      if (data.success) {
+        // Handle success (You can show a success message or redirect to a post feed)
+        alert("Post created successfully!");
+        setDescription(""); // Clear description
+        setMediaFiles(null); // Reset media files
+      } else {
+        alert("Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error uploading post.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={postDescription}
-        onChange={handleDescriptionChange}
-        placeholder="Post Description"
-      />
-      <input type="file" onChange={handleFileChange} />
-      <button type="submit">Post</button>
-    </form>
+    <div>
+      <h2>Create Post</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Write a description..."
+            required
+          />
+        </div>
+
+        <div>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={(e) => setMediaFiles(e.target.files)}
+            required
+          />
+        </div>
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Creating..." : "Create Post"}
+        </button>
+      </form>
+    </div>
   );
-}
+};
+
+export default CreatePost;
