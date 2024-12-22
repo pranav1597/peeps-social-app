@@ -1,39 +1,77 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import uploadFields from "@/middlewares/multer"; // Import your multer setup
+import { NextResponse } from "next/server";
+import cloudinary from "@/helpers/cloudinary";
+import multer from "multer";
+import { Readable } from "stream";
 
 export const config = {
   api: {
-    bodyParser: false, // Disable default bodyParser to allow Multer to handle it
+    bodyParser: false, // Let multer handle the file parsing
   },
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    // Return a promise because Multer works asynchronously
-    return new Promise((resolve, reject) => {
-      uploadFields(req as any, res as any, (err: any) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
+// Configure multer for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).fields([
+  { name: "profilePicture", maxCount: 1 },
+  { name: "posts", maxCount: 10 },
+]);
 
-        // After file upload, you can access the files in req.files
-        const profilePictureUrl = req?.files?.profilePicture
-          ? req.files.profilePicture[0].path // Handle single file
-          : null;
-        const postUrls = req?.files?.posts
-          ? req.files.posts.map((file: any) => file.path) // Handle multiple files (posts)
-          : [];
-
-        // Respond with the file URLs
-        return res.status(200).json({
-          profilePictureUrl,
-          postUrls, // Respond with URLs for both profile picture and posts
-        });
-      });
+function parseFormData(req: Request) {
+  return new Promise((resolve, reject) => {
+    const multerMiddleware = upload as any;
+    multerMiddleware(req, {} as any, (err: any) => {
+      if (err) return reject(err);
+      resolve(req as any);
     });
-  } else {
-    // Handle unsupported HTTP methods
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: "Method Not Allowed" });
+  });
+}
+
+// Helper: Upload file to Cloudinary
+async function uploadToCloudinary(file: any): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "social-app/posts", resource_type: "auto" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url); // Secure URL of uploaded file
+      }
+    );
+
+    const stream = Readable.from(file.buffer);
+    stream.pipe(uploadStream); // Stream the file buffer to Cloudinary
+  });
+}
+
+export async function POST(req: Request) {
+  try {
+    // Parse form data
+    const parsedReq: any = await parseFormData(req);
+    const files = parsedReq.files;
+
+    // Upload files to Cloudinary
+    const profilePictureFile = files?.profilePicture?.[0];
+    const postFiles = files?.posts || [];
+
+    const profilePictureUrl = profilePictureFile
+      ? await uploadToCloudinary(profilePictureFile)
+      : null;
+
+    const postUrls = await Promise.all(
+      postFiles.map((file: any) => uploadToCloudinary(file))
+    );
+
+    return NextResponse.json(
+      {
+        message: "Files uploaded successfully",
+        profilePictureUrl,
+        postUrls,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred while uploading" },
+      { status: 500 }
+    );
   }
 }

@@ -16,7 +16,6 @@ const Layout = ({ children, hasSidebar }: LayoutProps) => (
       <Navbar />
       
       <main>{children}</main>
-   
     
       {/* Main Content */}
      
