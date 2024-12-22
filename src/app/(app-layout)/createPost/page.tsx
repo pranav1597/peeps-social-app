@@ -1,81 +1,77 @@
-// createPost/page.tsx
-"use client";
-import { useState } from "react";
+"use client"
 
-const CreatePost = () => {
-  const [description, setDescription] = useState<string>("");
-  const [mediaFiles, setMediaFiles] = useState<FileList | null>(null);
-  const [loading, setLoading] = useState(false);
+import React, { useState } from "react";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+// CreatePostPage.tsx
+export default function CreatePostPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [postDescription, setPostDescription] = useState("");
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
-    if (!mediaFiles || mediaFiles.length === 0) {
-      alert("Please select media.");
-      return;
-    }
-
-    setLoading(true);
-
-    // FormData to handle file and text submission
-    const formData = new FormData();
-    formData.append("description", description);
-    for (let i = 0; i < mediaFiles.length; i++) {
-      formData.append("media", mediaFiles[i]);
-    }
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        // Handle success (You can show a success message or redirect to a post feed)
-        alert("Post created successfully!");
-        setDescription(""); // Clear description
-        setMediaFiles(null); // Reset media files
-      } else {
-        alert("Something went wrong");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error uploading post.");
-    } finally {
-      setLoading(false);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      setFile(files[0]);
+      const fileUrl = URL.createObjectURL(files[0]);
+      setFilePreview(fileUrl); // Preview the selected file
     }
   };
 
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPostDescription(event.target.value);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!file || !postDescription) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("posts", file);
+    formData.append("description", postDescription);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+    console.log(result);
+  };
+
   return (
-    <div>
-      <h2>Create Post</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Write a description..."
-            required
-          />
-        </div>
-
-        <div>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            onChange={(e) => setMediaFiles(e.target.files)}
-            required
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Post"}
+    <div className="p-5">
+      <h1 className="text-xl mb-4">Create Post</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          value={postDescription}
+          onChange={handleDescriptionChange}
+          placeholder="Post Description"
+          className="border p-2 w-full rounded-md text-slate-800"
+        />
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept="image/*, video/*"
+          className="border p-2 w-full rounded-md"
+        />
+        {filePreview && (
+          <div className="mt-3">
+            <img src={filePreview} alt="Preview" className="w-full h-48 object-cover rounded-md" />
+          </div>
+        )}
+        <button
+          type="submit"
+          className="bg-blue-500 text-white py-2 px-6 rounded-md"
+        >
+          Post
         </button>
       </form>
     </div>
   );
-};
+}
 
-export default CreatePost;

@@ -6,18 +6,9 @@ import Link from "next/link";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showCreatePost, setShowCreatePost] = useState(false);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleCreatePostClick = () => {
-    setShowCreatePost(true);
-  };
-
-  const resetCreatePost = () => {
-    setShowCreatePost(false);
   };
 
   return (
@@ -25,7 +16,10 @@ export default function Navbar() {
       <nav className="w-full bg-white border-gray-200 dark:bg-navbarTheme z-10">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-1">
           {/* Logo and Brand */}
-          <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+          <Link
+            href="/"
+            className="flex items-center space-x-3 rtl:space-x-reverse"
+          >
             <Image
               src="/android-chrome-192x192.png"
               className="transition-transform duration-300 hover:rotate-12"
@@ -60,7 +54,7 @@ export default function Navbar() {
               data-dropdown-placement="bottom"
             >
               <span className="sr-only">Open user menu</span>
-              <Link href='/profile'>
+              <Link href="/profile">
                 <img
                   className="w-8 h-8 rounded-full"
                   src="/docs/images/people/profile-picture-3.jpg"
@@ -107,21 +101,27 @@ export default function Navbar() {
             <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-navbarTheme dark:border-gray-700">
               {/* Feed Icon */}
               <li>
-                <Link href="#" className="flex items-center space-x-2 py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-violet-700 md:p-0 dark:text-violet-500">
+                <Link
+                  href="#"
+                  className="flex items-center space-x-2 py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-violet-700 md:p-0 dark:text-violet-500"
+                >
                   <i className="fas fa-home hidden md:inline" title="Feed"></i>
                   <span className="md:hidden">Feed</span>
                 </Link>
               </li>
 
-              {/* Create Post Icon - Click to show 'Create Post' page */}
+              {/* Create Post Icon - Click to redirect to Create Post page */}
               <li>
-                <button
-                  onClick={handleCreatePostClick}
+                <Link
+                  href="/createPost"
                   className="flex items-center space-x-2 py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-violet-700 md:p-0 dark:text-white md:dark:hover:text-violet-400 dark:hover:text-white"
                 >
-                  <i className="fas fa-pencil-alt hidden md:inline" title="Create Post"></i>
+                  <i
+                    className="fas fa-pencil-alt hidden md:inline"
+                    title="Create Post"
+                  ></i>
                   <span className="md:hidden">Create Post</span>
-                </button>
+                </Link>
               </li>
 
               {/* Posts Icon */}
@@ -130,7 +130,10 @@ export default function Navbar() {
                   href="#"
                   className="flex items-center space-x-2 py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-violet-700 md:p-0 dark:text-white md:dark:hover:text-violet-400 dark:hover:text-white"
                 >
-                  <i className="fas fa-briefcase hidden md:inline" title="Posts"></i>
+                  <i
+                    className="fas fa-briefcase hidden md:inline"
+                    title="Posts"
+                  ></i>
                   <span className="md:hidden">Posts</span>
                 </Link>
               </li>
@@ -141,7 +144,10 @@ export default function Navbar() {
                   href="#"
                   className="flex items-center space-x-2 py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-violet-700 md:p-0 dark:text-white md:dark:hover:text-violet-400 dark:hover:text-white"
                 >
-                  <i className="fa-regular fa-bell hidden md:inline" title="Notifications"></i>
+                  <i
+                    className="fa-regular fa-bell hidden md:inline"
+                    title="Notifications"
+                  ></i>
                   <span className="md:hidden">Notifications</span>
                 </Link>
               </li>
@@ -152,7 +158,10 @@ export default function Navbar() {
                   href="#"
                   className="flex items-center space-x-2 py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-violet-700 md:p-0 dark:text-white md:dark:hover:text-violet-400 dark:hover:text-white"
                 >
-                  <i className="fa-solid fa-message hidden md:inline" title="Chats"></i>
+                  <i
+                    className="fa-solid fa-message hidden md:inline"
+                    title="Chats"
+                  ></i>
                   <span className="md:hidden">Chat</span>
                 </Link>
               </li>
@@ -160,28 +169,6 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-
-      {/* Create Post Page in the middle */}
-      {showCreatePost && (
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="w-full max-w-lg p-6 bg-white shadow-lg rounded-lg">
-            {/* Your "Create Post" form goes here */}
-            <h2 className="text-xl font-bold mb-4">Create Post</h2>
-            <textarea
-              className="w-full p-4 border-2 border-gray-300 rounded-lg"
-              placeholder="Write your post..."
-            />
-            <div className="mt-4 text-center">
-              <button
-                onClick={resetCreatePost}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-              >
-                Back to Feed
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

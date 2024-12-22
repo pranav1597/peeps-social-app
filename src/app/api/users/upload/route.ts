@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import multer from "multer";
-import { uploadToCloudinary } from "@/cloudinary"; // Make sure to import the upload helper
+import { uploadToCloudinary } from "@/helpers/cloudinary"; // Make sure to import the upload helper
 import { connect } from "@/dbConfig/dbConfig"; // Your DB connection setup
-import Post from "@/models/postModel"; // Your Post model
+import Post from "@/models/postModels"; // Your Post model
 
 export const config = {
   api: {
