@@ -1,77 +1,76 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-// CreatePostPage.tsx
 export default function CreatePostPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [postDescription, setPostDescription] = useState("");
-  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [postText, setPostText] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setFile(files[0]);
-      const fileUrl = URL.createObjectURL(files[0]);
-      setFilePreview(fileUrl); // Preview the selected file
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
     }
   };
 
-  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPostDescription(event.target.value);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("text", postText);
+      if (image) {
+        formData.append("image", image);
+      }
 
-    if (!file || !postDescription) {
-      alert("Please fill in all fields");
-      return;
+      // Send post data to the API
+      const response = await fetch("/api/users/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        router.push("/feed");
+      } else {
+        console.error("Failed to create post");
+      }
+    } catch (error) {
+      console.error("Error submitting post:", error);
+    } finally {
+      setUploading(false);
     }
-
-    const formData = new FormData();
-    formData.append("posts", file);
-    formData.append("description", postDescription);
-
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const result = await response.json();
-    console.log(result);
   };
 
   return (
-    <div className="p-5">
-      <h1 className="text-xl mb-4">Create Post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          value={postDescription}
-          onChange={handleDescriptionChange}
-          placeholder="Post Description"
-          className="border p-2 w-full rounded-md text-slate-800"
-        />
-        <input
-          type="file"
-          onChange={handleFileChange}
-          accept="image/*, video/*"
-          className="border p-2 w-full rounded-md"
-        />
-        {filePreview && (
-          <div className="mt-3">
-            <img src={filePreview} alt="Preview" className="w-full h-48 object-cover rounded-md" />
-          </div>
-        )}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-6 rounded-md"
-        >
-          Post
-        </button>
-      </form>
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="w-full max-w-lg p-6 bg-white shadow-lg rounded-lg">
+        <h2 className="text-xl font-bold mb-4">Create Post</h2>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
+          <textarea
+            value={postText}
+            onChange={(e) => setPostText(e.target.value)}
+            className="w-full p-4 border-2 border-gray-300 rounded-lg mb-4"
+            placeholder="Write your post..."
+            required
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="mb-4"
+          />
+          <button
+            type="submit"
+            disabled={uploading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            {uploading ? "Uploading..." : "Post"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
-
