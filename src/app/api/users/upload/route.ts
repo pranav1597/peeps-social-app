@@ -3,6 +3,7 @@ import multer from "multer";
 import { uploadToCloudinary } from "@/helpers/cloudinary"; // Make sure to import the upload helper
 import { connect } from "@/dbConfig/dbConfig"; // Your DB connection setup
 import Post from "@/models/postModels"; // Your Post model
+import upload from "@/middlewares/multer";
 
 export const config = {
   api: {
@@ -11,8 +12,8 @@ export const config = {
 };
 
 // Multer setup to handle file uploads in memory
-const storage = multer.memoryStorage();
-const upload = multer({ storage }).fields([{ name: "media", maxCount: 10 }]); // Supporting multiple files
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage }).fields([{ name: "media", maxCount: 10 }]); // Supporting multiple files
 
 // Function to parse FormData (handle files from request)
 function parseFormData(req: Request) {
